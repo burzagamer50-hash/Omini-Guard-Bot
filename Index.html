@@ -211,11 +211,17 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-    <script src="actions/bridge.js"></script>
-</body>
+    <script>
+  window.OMNI_GUARD = {
+    kick: {
+      buttonText: "Confirm & Execute Kick",
+      usernamePlaceholder: "ENTER USERNAME OR ID",
+      reasonPlaceholder: "WHY IS THIS USER BEING KICKED?..."
+    }
+  };
+</script>
+
+<script src="actions/bridge.js"></script>
+
+</body> 
 </html>
-
-
-
-
-
