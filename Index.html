@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniGuard Foundation | Control Center</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'JetBrains Mono', monospace; background-color: #050505; color: #fff; margin: 0; }
+        .sidebar { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.03); }
+        .nav-item { padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                   font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #555;
+                   display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.03); color: #fff; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(37, 99, 235, 0.1), transparent); color: #2563eb; border-left: 3px solid #2563eb; }
+        .panel { background: rgba(10, 10, 10, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #111; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" src="modules/analytics.js"></script>
+    <script type="text/babel" src="modules/search.js"></script>
+    <script type="text/babel" src="modules/promote.js"></script>
+    <script type="text/babel" src="modules/demote.js"></script>
+    <script type="text/babel" src="modules/pban.js"></script>
+    <script type="text/babel" src="modules/blacklist.js"></script>
+    <script type="text/babel" src="modules/staffwarn.js"></script>
+    <script type="text/babel" src="modules/kick.js"></script>
+    <script type="text/babel" src="modules/warnings.js"></script>
+    <script type="text/babel" src="modules/alts.js"></script>
+    <script type="text/babel" src="modules/ban.js"></script>
+    <script type="text/babel" src="modules/modlogs.js"></script>
+    <script type="text/babel" src="modules/chatlogs.js"></script>
+    <script type="text/babel" src="modules/shifts.js"></script>
+    <script type="text/babel" src="modules/training.js"></script>
+    <script type="text/babel" src="app.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('ranks');
+
+            // --- مصفوفة الرتب الـ 21 الكاملة (تم تنظيف التكرار) ---
+            const [allRanks, setAllRanks] = useState([
+                { id: 1, name: 'Board of Governors', permissions: ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15'], color: 'text-yellow-500', group: 'SUPER HIGH' },
+                { id: 2, name: 'Board of Directors', permissions: ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14'], color: 'text-red-600', group: 'SUPER HIGH' },
+                { id: 3, name: 'Chief Executive Officer', permissions: ['p1','p2','p3','p4','p5','p6','p7','p8','p10','p11','p12','p13'], color: 'text-red-500', group: 'SUPER HIGH' },
+                { id: 4, name: 'Chief of Staff', permissions: ['p1','p2','p3','p4','p5','p6','p7','p8','p10','p11'], color: 'text-red-400', group: 'SUPER HIGH' },
+                { id: 5, name: 'Executive Director', permissions: ['p1','p2','p3','p4','p5','p10','p11'], color: 'text-orange-500', group: 'SUPER HIGH' },
+                { id: 6, name: 'Head of Operations', permissions: ['p1','p2','p3','p10','p11'], color: 'text-orange-400', group: 'SUPER HIGH' },
+                { id: 7, name: 'Supreme Commander', permissions: ['p1','p2','p3'], color: 'text-orange-300', group: 'SUPER HIGH' },
+                { id: 8, name: 'General Manager', permissions: ['p1','p2','p7','p8','p12','p13'], color: 'text-blue-600', group: 'HIGH RANK' },
+                { id: 9, name: 'Warden', permissions: ['p1','p2','p7','p8'], color: 'text-blue-500', group: 'HIGH RANK' },
+                { id: 10, name: 'Deputy Warden', permissions: ['p1','p2','p7','p8'], color: 'text-blue-400', group: 'HIGH RANK' },
+                { id: 11, name: 'Facility Manager', permissions: ['p1','p2','p7'], color: 'text-cyan-500', group: 'HIGH RANK' },
+                { id: 12, name: 'Game Administrator', permissions: ['p1','p2','p7'], color: 'text-cyan-400', group: 'HIGH RANK' },
+                { id: 13, name: 'Chief Lead', permissions: ['p1','p2'], color: 'text-cyan-300', group: 'HIGH RANK' },
+                { id: 14, name: 'Area Supervisor', permissions: ['p1','p2'], color: 'text-indigo-400', group: 'HIGH RANK' },
+                { id: 15, name: 'Major', permissions: ['p1','p6','p10','p11'], color: 'text-zinc-200', group: 'LOWER RANK' },
+                { id: 16, name: 'Captain', permissions: ['p1','p6'], color: 'text-zinc-300', group: 'LOWER RANK' },
+                { id: 17, name: 'Lieutenant', permissions: ['p1'], color: 'text-zinc-400', group: 'LOWER RANK' },
+                { id: 18, name: 'Superintendent', permissions: [], color: 'text-zinc-500', group: 'LOWER RANK' },
+                { id: 19, name: 'Senior Corrections Officer', permissions: [], color: 'text-zinc-600', group: 'LOWER RANK' },
+                { id: 20, name: 'Corrections Officer', permissions: [], color: 'text-zinc-700', group: 'LOWER RANK' },
+                { id: 21, name: 'Corporal', permissions: [], color: 'text-zinc-800', group: 'LOWER RANK' }
+            ]);
+
+            // --- LocalStorage: load on mount, save on change ---
+            useEffect(() => {
+                try {
+                    const saved = localStorage.getItem('RANKS_DATA');
+                    if (saved) setAllRanks(JSON.parse(saved));
+                } catch (e) {
+                    console.warn('Failed to load ranks from localStorage', e);
+                }
+            }, []);
+
+            useEffect(() => {
+                try {
+                    localStorage.setItem('RANKS_DATA', JSON.stringify(allRanks));
+                } catch (e) {
+                    console.warn('Failed to save ranks to localStorage', e);
+                }
+            }, [allRanks]);
+
+            // move function accepts optional targetGroup to update the group's value on transfer
+            const handleMoveRank = (fromIndex, toIndex, targetGroup) => {
+                if (fromIndex === null || typeof fromIndex === 'undefined') return;
+                if (toIndex < 0) toIndex = 0;
+                if (toIndex > allRanks.length) toIndex = allRanks.length;
+
+                const updatedRanks = [...allRanks];
+                const [movedItem] = updatedRanks.splice(fromIndex, 1);
+                if (!movedItem) return;
+                if (typeof targetGroup === 'string') movedItem.group = targetGroup;
+                // if removing an earlier item affects the toIndex, adjust
+                let adjustedIndex = toIndex;
+                if (fromIndex < toIndex) adjustedIndex = toIndex - 1;
+                updatedRanks.splice(adjustedIndex, 0, movedItem);
+                setAllRanks([...updatedRanks]);
+            };
+
+            const handleTogglePerm = (rankId, permId) => {
+                setAllRanks(prev => prev.map(rank => {
+                    if (rank.id === rankId) {
+                        const hasPerm = rank.permissions.includes(permId);
+                        return { ...rank, permissions: hasPerm ? rank.permissions.filter(p => p !== permId) : [...rank.permissions, permId] };
+                    }
+                    return rank;
+                }));
+            };
+
+            const handleAddRank = (name) => {
+                const newRank = { id: Date.now(), name, permissions: [], color: 'text-zinc-400', group: 'LOWER RANK' };
+                setAllRanks([...allRanks, newRank]);
+            };
+
+            const sections = [
+                { title: "Radar & Intel", items: [{ id: 'analytics', label: 'Analytics', icon: 'fa-chart-pie' }, { id: 'search', label: 'Intelligence', icon: 'fa-magnifying-glass-chart' }, { id: 'alts', label: 'Alts Finder', icon: 'fa-users-viewfinder' }] },
+                { title: "Authority Units", items: [{ id: 'promote', label: 'Promote Room', icon: 'fa-angles-up' }, { id: 'demote', label: 'Demote Room', icon: 'fa-angles-down' }, { id: 'ranks', label: 'Ranks Manager', icon: 'fa-id-card-clip' }] },
+                { title: "Sanction Core", items: [{ id: 'kick', label: 'Kick Unit', icon: 'fa-user-slash' }, { id: 'ban', label: 'Ban Center', icon: 'fa-gavel' }, { id: 'pban', label: 'P-Ban Service', icon: 'fa-skull' }, { id: 'blacklist', label: 'Blacklist', icon: 'fa-user-lock' }, { id: 'warnings', label: 'Warnings', icon: 'fa-triangle-exclamation' }] },
+                { title: "Staff Management", items: [{ id: 'staffwarn', label: 'Staff Warn', icon: 'fa-shield-heart' }, { id: 'shifts', label: 'Shifts Tracking', icon: 'fa-business-time' }, { id: 'training', label: 'Trainings', icon: 'fa-graduation-cap' }] },
+                { title: "System Archive", items: [{ id: 'modlogs', label: 'Mod Logs', icon: 'fa-box-archive' }, { id: 'chatlogs', label: 'Chat Logs', icon: 'fa-comments' }, { id: 'permissions', label: 'Permissions', icon: 'fa-key' }] }
+            ];
+
+            const renderModule = () => {
+                if (activeTab === 'ranks' && window.RanksModule) {
+                    return <window.RanksModule ranks={allRanks} onAddRank={handleAddRank} onTogglePerm={handleTogglePerm} onMoveRank={handleMoveRank} />;
+                }
+
+                let CurrentModule = null;
+                if (activeTab === 'analytics' && window.AnalyticsModule) CurrentModule = window.AnalyticsModule;
+                else if (activeTab === 'search' && window.SearchModule) CurrentModule = window.SearchModule;
+                else if (activeTab === 'alts' && window.AltsModule) CurrentModule = window.AltsModule;
+                else if (activeTab === 'promote' && window.PromoteModule) CurrentModule = window.PromoteModule;
+                else if (activeTab === 'demote' && window.DemoteModule) CurrentModule = window.DemoteModule;
+                else if (activeTab === 'staffwarn' && window.StaffWarnModule) CurrentModule = window.StaffWarnModule;
+                else if (activeTab === 'kick' && window.KickModule) CurrentModule = window.KickModule;
+                else if (activeTab === 'pban' && window.PbanModule) CurrentModule = window.PbanModule;
+                else if (activeTab === 'blacklist' && window.BlacklistModule) CurrentModule = window.BlacklistModule;
+                else if (activeTab === 'warnings' && window.WarningsModule) CurrentModule = window.WarningsModule;
+                else if (activeTab === 'ban' && window.BanModule) CurrentModule = window.BanModule;
+                else if (activeTab === 'modlogs' && window.ModLogsModule) CurrentModule = window.ModLogsModule;
+                else if (activeTab === 'chatlogs' && window.ChatLogsModule) CurrentModule = window.ChatLogsModule;
+                else if (activeTab === 'shifts' && window.ShiftsModule) CurrentModule = window.ShiftsModule;
+                else if (activeTab === 'training' && window.TrainingModule) CurrentModule = window.TrainingModule;
+
+                if (CurrentModule) return <CurrentModule />;
+
+                return (
+                    <div className="flex flex-col items-center justify-center h-[60vh] opacity-20 text-center">
+                        <i className="fa-solid fa-microchip text-6xl mb-6 animate-pulse"></i>
+                        <h2 className="text-sm font-black uppercase tracking-[0.8em]">Module_In_Development</h2>
+                        <p className="text-[8px] mt-4 font-bold uppercase tracking-widest italic text-blue-500">Encrypted_Access_Pending</p>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="flex h-screen w-screen overflow-hidden bg-[#050505]">
+                    <aside className="w-64 sidebar p-5 flex flex-col custom-scroll overflow-y-auto shrink-0">
+                        <div className="mb-10 px-2 flex-shrink-0">
+                            <h1 className="text-xl font-black text-white italic tracking-tighter uppercase">Omni<span className="text-blue-600">Guard</span></h1>
+                            <p className="text-[7px] text-zinc-700 font-bold uppercase mt-1 tracking-widest">Foundation_Control</p>
+                        </div>
+
+                        <nav className="flex-1 px-2">
+                            {sections.map((section, index) => (
+                                <div key={section.title || index} className="mb-8">
+                                    <h3 className="text-[8px] text-zinc-700 font-black uppercase mb-4 tracking-[0.3em] pl-4 opacity-50">{section.title}</h3>
+                                    <div className="space-y-1">
+                                        {section.items.map(item => (
+                                            <div key={item.id} 
+                                                 className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+                                                 onClick={() => setActiveTab(item.id)}>
+                                                <i className={`fa-solid ${item.icon} w-5 text-center text-sm`}></i>
+                                                <span>{item.label}</span>
+                                                {activeTab === item.id && <div className="ml-auto w-1 h-1 bg-white rounded-full animate-pulse"></div>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {index !== sections.length - 1 && <div className="mt-6 border-b border-white/[0.03] mx-4"></div>}
+                                </div>
+                            ))}
+                        </nav>
+
+                        <div className="mt-10 p-4 panel border-zinc-900 bg-zinc-950/20 flex-shrink-0">
+                            <p className="text-[8px] font-black text-zinc-700 uppercase mb-2 italic">Operator_ID</p>
+                            <p className="text-[10px] font-black text-white uppercase italic tracking-tighter">FOUNDER_OMNI</p>
+                        </div>
+                    </aside>
+
+                    <main className="flex-1 p-12 overflow-y-auto custom-scroll relative">
+                        <div className="max-w-5xl mx-auto">
+                            {renderModule()}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    <script src="actions/bridge.js"></script>
+</body>
+</html>
+
+
+
+
+
