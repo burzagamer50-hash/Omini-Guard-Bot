@@ -1,5 +1,5 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 
@@ -35,9 +35,7 @@ app.post("/kick", (req, res) => {
 
   console.log("🚨 Kick queued:", kickQueue);
 
-  res.json({
-    success: true
-  });
+  res.json({ success: true });
 });
 
 /*
@@ -56,7 +54,7 @@ app.get("/poll", (req, res) => {
 });
 
 /*
-  فحص سريع
+  Health check
 */
 app.get("/", (req, res) => {
   res.json({ status: "ok" });
